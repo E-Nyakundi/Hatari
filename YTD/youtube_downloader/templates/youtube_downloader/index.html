@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">YouTube Downloader</h1>
+        <form method="post" class="mt-3">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.url.label_tag }}
+                {{ form.url }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Get Details</button>
+        </form>
+
+        {% if details %}
+            <div class="mt-5">
+                <h2>Details:</h2>
+                <p><strong>Title:</strong> {{ details.title }}</p>
+                <p><strong>Description:</strong> {{ details.description }}</p>
+                
+                <p><img src="{{ details.thumbnail_url }}" alt="Thumbnail"></p>
+                <div>
+                    <h3> Available Streamss </h3>
+                    {% for stream in  details.streams  %}
+                        {% if stream.resolution is not None %}
+                            <p>{{ stream }}: {{ stream.resolution }}</p>
+                        {% else %}
+                            <p>  {{ stream }}: {{ stream.abr}} </p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <hr>
+                
+
+                <div class="form-group">
+                    <label>Select Quality:</label><br>
+                    {% set streams = set() %}
+                    {% for streamm in details.streams %}
+                        {% if stream.resolution is not None %}
+                        {% streams.add stream.resolution %}
+                            {% for stream in streams %}
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" id="{{ stream }}" name="selected_quality" value="{{ stream }}" class="form-check-input">
+                                    <label for="{{ stream }}" class="form-check-label">{{ stream }}</label>
+                                </div>
+                            {% endfor %}    
+                        {% else %}
+                            <div class="form-check form-check-inline">
+                                <input type="radio" id="{{ streamm.abr }}" name="selected_quality" value="{{ streamm.abr }}" class="form-check-input">
+                                <label for="{{ streamm.abr }}" class="form-check-label">{{ streamm.abr }}</label>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="url" value="{{ url }}">
+                    <input type="hidden" name="selected_quality" value="{{ selected_quality }}">
+                    <button type="submit" name="download" class="btn btn-success">Download</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
